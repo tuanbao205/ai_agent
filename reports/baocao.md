@@ -1,18 +1,18 @@
 # Báo cáo điều hành dự án AgentOS Customer360
 
 - **Ngày cập nhật:** 18/09/2026
-- **Phiên bản báo cáo:** 0.4
-- **Trạng thái:** Có local FastAPI skeleton và audit layer P0/P1; chưa có production
+- **Phiên bản báo cáo:** 0.5
+- **Trạng thái:** Đang lập kế hoạch triển khai để trình Lead; tạm dừng phát triển code
 - **Tài liệu nguồn chính:** `De_bai_Xay_dung_He_thong_AI_Agent_Marketing_Sales_CSKH_v0.1.md`, `plans/`, `reports/AUDIT_DE_BAI_VS_KE_HOACH.md`
 
 ## 1. Hiện trạng hệ thống
 
 ### 1.1. Hiện trạng thực tế
 
-- Workspace có bộ hồ sơ thiết kế và local FastAPI vertical slice đầu tiên.
+- Workspace có bộ hồ sơ thiết kế và một local prototype nhỏ dùng để kiểm tra giả thuyết kỹ thuật.
 - Đã tạo contract P0/P1 tại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md).
 - Đã tạo `pyproject.toml`, package `app/`, health check và fake ERP connector.
-- Chưa có database persistence, identity provider, audit store bền vững hoặc connector production; audit hiện chỉ in-memory.
+- Chưa có database persistence, identity provider, audit store bền vững hoặc connector production; prototype hiện chỉ in-memory.
 - Chưa có doanh nghiệp pilot, website/app cụ thể, dữ liệu thật, credential hoặc KPI baseline.
 
 ### 1.2. Kiến trúc đích đã thống nhất
@@ -156,6 +156,13 @@ MVP đầu tiên chỉ cần:
 - Viết test cùng lúc với từng capability, không đợi đến cuối mới kiểm thử.
 - Dùng FastAPI modular monolith cho P0/P1; giữ interface connector để thay fake ERP bằng adapter thật.
 
+### 5.4. Trạng thái quyết định hiện tại
+
+- **Đã đề xuất:** Python + FastAPI, modular monolith, adapter cắm-rút, fake connector ở local.
+- **Chưa khóa triển khai:** framework cuối cùng, database, hạ tầng, kênh tích hợp và phân công đội phát triển.
+- **Mục tiêu trước mắt:** hoàn thiện tài liệu để Lead duyệt phạm vi, thứ tự ưu tiên, nguồn lực, rủi ro và điều kiện bắt đầu.
+- **Quy tắc hiện tại:** không viết thêm code hoặc mở rộng prototype cho đến khi có quyết định từ Lead.
+
 ## 6. Phương pháp luận làm việc
 
 Mỗi vòng triển khai sẽ theo chu trình:
@@ -188,6 +195,7 @@ Nguyên tắc kiểm soát:
 - [x] Tạo skeleton chạy được và health check.
 - [x] Tạo contract/schema nghiệp vụ P0/P1 đầu tiên tại `plans/platform/p0-contracts.md`.
 - [x] Ghi audit record cho request `DENY` và `SUCCESS` ở local.
+- [ ] Tạm dừng code, chuyển trọng tâm sang tài liệu kế hoạch trình Lead.
 
 ### 7.2. Production
 
@@ -208,6 +216,7 @@ Nguyên tắc kiểm soát:
 - Đã sửa authority check bằng bảng rank tường minh, không phụ thuộc thứ tự enum.
 - Đã thêm `InMemoryAuditStore`, `run_id`, `trace_id`, `execution_status` và evidence cho order lookup.
 - Smoke test audit đạt cho nhánh chưa xác minh danh tính (`DENY`) và lookup thành công (`SUCCESS`).
+- Prototype local được phân loại là bằng chứng kỹ thuật ban đầu, không phải hệ thống đã triển khai.
 
 ### 8.2. Production
 
@@ -226,6 +235,31 @@ Nguyên tắc kiểm soát:
 Sau khi contract P0 đã được khóa, skeleton local đã chạy được bằng fake connector mà không cần dữ liệu production. Stack được chốt tạm thời cho P0/P1 là Python + FastAPI.
 
 Lát cắt audit hiện chỉ là local in-memory; chưa được xem là audit production vì chưa có lưu trữ bền vững, phân quyền truy cập log và retention policy.
+
+## 12. Giai đoạn hiện tại: Chuẩn bị trình Lead
+
+### Mục tiêu
+
+Trình bày một kế hoạch có thể phê duyệt trước khi đầu tư thêm công sức phát triển.
+
+### Nội dung cần chốt với Lead
+
+1. Khách hàng/tenant pilot và ngành ưu tiên.
+2. Một hành trình P1 cụ thể cần giải quyết.
+3. Giá trị kinh doanh và KPI baseline.
+4. Phạm vi P0/P1 và những phần loại khỏi MVP.
+5. Stack kỹ thuật, đội ngũ và năng lực triển khai.
+6. Nguồn dữ liệu, API, quyền truy cập và trách nhiệm bảo mật.
+7. Kế hoạch rollout local → production-like → pilot production.
+8. Tiêu chí nghiệm thu và quyết định mở P2.
+
+### Sản phẩm đầu ra trước khi code tiếp
+
+- Implementation plan được Lead duyệt.
+- Phân rã công việc theo milestone và người phụ trách.
+- Danh sách rủi ro, giả định và phụ thuộc.
+- Definition of Done cho P0/P1.
+- Quyết định chính thức về việc giữ, sửa hoặc bỏ prototype hiện tại.
 
 ## 10. Quy ước cập nhật báo cáo
 
