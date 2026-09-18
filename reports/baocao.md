@@ -1,32 +1,21 @@
 # Báo cáo điều hành dự án AgentOS Customer360
 
- **Ngày cập nhật:** 18/09/2026
- **Phiên bản báo cáo:** 0.2
- **Trạng thái:** Đã khóa P0 contract local; chưa có runtime
- Đã tạo bản contract P0/P1 độc lập tại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md).
+- **Ngày cập nhật:** 18/09/2026
+- **Phiên bản báo cáo:** 0.3
+- **Trạng thái:** Có local FastAPI skeleton P0/P1; chưa có production
 - **Tài liệu nguồn chính:** `De_bai_Xay_dung_He_thong_AI_Agent_Marketing_Sales_CSKH_v0.1.md`, `plans/`, `reports/AUDIT_DE_BAI_VS_KE_HOACH.md`
 
-### 2.4. Luồng contract P0 đã khóa local
+## 1. Hiện trạng hệ thống
 
-```text
-Request có tenant context
-  -> Kiểm tra tenant boundary
-  -> Kiểm tra authority và điều kiện P1
-  -> Chạy skill CSKH được phép
-  -> Ghi run/evidence/audit
-  -> Trả kết quả hoặc DENY/FAILED trung thực
-```
+### 1.1. Hiện trạng thực tế
 
-Contract chi tiết gồm tenant boundary, Customer, Identity, Consent, Conversation, Service Case, Evidence, Agent Run và 5 skill P1. Tám acceptance checks tối thiểu đã được ghi trong tài liệu P0.
- Chưa có API transport và connector thật với ERP/WMS, website hoặc kênh chat; contract nghiệp vụ P0 đã có bản local đầu tiên.
- Giữ contract P0 độc lập công nghệ; chỉ chốt framework sau khi kiểm tra môi trường và yêu cầu triển khai.
- [ ] Chốt phiếu đầu vào pilot trong `plans/delivery/mvp-and-roadmap.md` (chưa đủ thông tin từ chủ dự án).
- [x] Tạo contract/schema nghiệp vụ P0/P1 đầu tiên tại `plans/platform/p0-contracts.md`.
- Đã khóa local các ranh giới tenant, entity P1, skill P1 và 8 acceptance checks tại `plans/platform/p0-contracts.md`.
-- Chưa có doanh nghiệp pilot, website/app cụ thể, bộ dữ liệu thật, API credential hoặc KPI baseline.
- Sau khi contract P0 đã được khóa, có thể tạo skeleton local bằng fake connector mà không cần chờ dữ liệu production. Tuy nhiên vẫn cần chốt stack kỹ thuật trước khi sinh mã nguồn.
-- Chưa có môi trường local chạy ứng dụng và chưa có môi trường production để kiểm chứng.
-- Đã có tài liệu kiến trúc, nghiệp vụ, lộ trình, mã yêu cầu, pilot và bộ kiểm thử đề xuất.
+- Workspace có bộ hồ sơ thiết kế và local FastAPI vertical slice đầu tiên.
+- Đã tạo contract P0/P1 tại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md).
+- Đã tạo `pyproject.toml`, package `app/`, health check và fake ERP connector.
+- Chưa có database persistence, identity provider, audit store hoặc connector production.
+- Chưa có doanh nghiệp pilot, website/app cụ thể, dữ liệu thật, credential hoặc KPI baseline.
+
+### 1.2. Kiến trúc đích đã thống nhất
 
 ### 1.2. Kiến trúc đích đã thống nhất
 
@@ -37,6 +26,19 @@ Dự án hướng tới nền tảng **Core Platform + Industry Template + Custo
 3. **Domain Playbooks:** Mobility, FMCG, thị trường Đài Loan và các adapter mở rộng.
 
 Ba nhóm sản phẩm bên ngoài là Marketing, Sales và Customer Care. Bên trong có 13 sub-agent chuyên môn, không phải 13 sản phẩm độc lập.
+
+### 1.3. Luồng contract P0 đã khóa local
+
+```text
+Request có tenant context
+  -> Kiểm tra tenant boundary
+  -> Kiểm tra authority và điều kiện P1
+  -> Chạy skill CSKH được phép
+  -> Ghi run/evidence/audit
+  -> Trả kết quả hoặc DENY/FAILED trung thực
+```
+
+Contract gồm tenant boundary, entity P1, skill P1 và 8 acceptance checks tối thiểu.
 
 ## 2. Luồng xử lý hiện tại
 
@@ -61,10 +63,21 @@ Tài liệu SRS
   -> Bộ kế hoạch plans/
   -> Audit và phân lớp 3 tầng
   -> Roadmap P0-P5
-  -> Chưa có bước triển khai runtime
+  -> FastAPI local vertical slice P0/P1
 ```
 
-Đây là luồng thiết kế, **chưa phải luồng xử lý dữ liệu thật**. Chưa thể kết luận hệ thống đã đáp ứng các hành vi như tra cứu đơn hàng, chuyển nhân viên, chống gửi trùng hoặc kiểm soát giá.
+Đây là luồng local thử nghiệm, **chưa phải luồng xử lý production**. Chưa có persistence, audit store, human handoff hoặc connector ERP thật.
+
+### 2.3. Luồng runtime local hiện tại
+
+```text
+POST /p1/orders/lookup
+  -> FastAPI parse request
+  -> Kiểm tra tenant context
+  -> Fake ERP lookup theo tenant + order
+  -> Bắt buộc verified_customer_id khớp customer_id
+  -> Trả trạng thái đơn hoặc lỗi trung thực
+```
 
 ### 2.3. Luồng MVP được ưu tiên
 
@@ -88,9 +101,9 @@ Trong P1, Marketing và Sales phải tắt hoàn toàn. Không tạo giỏ hàng
 1. Chưa có hệ thống thực thi để kiểm chứng các thiết kế trong `plans/`.
 2. Chưa khóa doanh nghiệp pilot, hành trình đầu tiên và kết quả cần đo.
 3. Chưa có canonical data model cho Customer360, Conversation, Case, Evidence, Action và Approval.
-4. Chưa có API contract và connector thật với ERP/WMS, website hoặc kênh chat.
+4. Chưa có API transport và connector thật với ERP/WMS, website hoặc kênh chat; contract nghiệp vụ P0 đã có bản local đầu tiên.
 5. Chưa có cơ chế runtime cho policy, authority, idempotency, retry và audit.
-6. Chưa có bộ dữ liệu thử, test fixture và acceptance test có thể chạy tự động.
+6. Chưa có persistence và audit runtime; đã có smoke checks local cho vertical slice đầu tiên.
 7. Roadmap hiện chứa nhiều ý tưởng thương mại nâng cao, dễ làm phạm vi bị phình trước khi P1 hoạt động.
 8. Chưa có tiêu chí phân biệt rõ tính năng đã chạy local, đã chạy production-like và đã được doanh nghiệp nghiệm thu.
 
@@ -142,6 +155,7 @@ MVP đầu tiên chỉ cần:
 - Mặc định **fail closed**: thiếu quyền, thiếu nguồn hoặc connector lỗi thì không tự đoán và không ghi thành công.
 - Dùng fake connector trong local; production chỉ bật connector thật sau khi đã có quyền, secret và test hợp đồng.
 - Viết test cùng lúc với từng capability, không đợi đến cuối mới kiểm thử.
+- Dùng FastAPI modular monolith cho P0/P1; giữ interface connector để thay fake ERP bằng adapter thật.
 
 ## 6. Phương pháp luận làm việc
 
@@ -171,9 +185,9 @@ Nguyên tắc kiểm soát:
 - [x] Tạo báo cáo điều hành trung tâm tại `reports/baocao.md`.
 - [ ] Chốt phiếu đầu vào pilot trong `plans/delivery/mvp-and-roadmap.md`.
 - [ ] Kiểm kê chính xác source code, công cụ build và môi trường hiện có.
-- [ ] Chốt stack kỹ thuật cho P0/P1.
-- [ ] Tạo skeleton chạy được và health check.
-- [ ] Tạo contract/schema đầu tiên và test runner.
+- [x] Chốt stack local: Python + FastAPI + Pydantic.
+- [x] Tạo skeleton chạy được và health check.
+- [x] Tạo contract/schema nghiệp vụ P0/P1 đầu tiên tại `plans/platform/p0-contracts.md`.
 
 ### 7.2. Production
 
@@ -186,9 +200,12 @@ Nguyên tắc kiểm soát:
 
 ### 8.1. Local
 
-- Đã xác nhận workspace hiện chứa tài liệu thiết kế, chưa có runtime để chạy kiểm thử chức năng.
+- Đã xác nhận workspace có local runtime tối thiểu để chạy kiểm thử vertical slice.
 - Đã xác định P0/P1 là phạm vi triển khai an toàn và có giá trị kiểm chứng cao nhất.
 - Đã tạo file báo cáo trung tâm để cập nhật sau mỗi thay đổi: `reports/baocao.md`.
+- Đã tạo `pyproject.toml`, package `app/`, fake ERP connector và endpoint `/p1/orders/lookup`.
+- Smoke test local đạt cho health check, identity verification, lookup thành công và tenant boundary.
+- Đã sửa authority check bằng bảng rank tường minh, không phụ thuộc thứ tự enum.
 
 ### 8.2. Production
 
@@ -204,6 +221,8 @@ Nguyên tắc kiểm soát:
 5. Stack kỹ thuật hoặc giới hạn hạ tầng của dự án.
 6. Người có quyền nghiệm thu nghiệp vụ.
 
+Sau khi contract P0 đã được khóa, skeleton local đã chạy được bằng fake connector mà không cần dữ liệu production. Stack được chốt tạm thời cho P0/P1 là Python + FastAPI.
+
 ## 10. Quy ước cập nhật báo cáo
 
 Mỗi lần có thay đổi đáng kể, báo cáo này phải được cập nhật các mục liên quan, đặc biệt:
@@ -216,3 +235,10 @@ Mỗi lần có thay đổi đáng kể, báo cáo này phải được cập nh
 - Kết quả local và production.
 
 Các mục hành động và kết quả sẽ chỉ được đánh dấu hoàn thành khi có bằng chứng chạy được, log, test hoặc xác nhận nghiệm thu tương ứng.
+
+## 11. Ghi chú môi trường kiểm thử
+
+- Interpreter terminal: Python 3.14.3.
+- FastAPI và httpx import được trong terminal.
+- Smoke test trực tiếp đã đạt.
+- `pytest` được công cụ môi trường báo đã cài nhưng terminal hiện không import được; cần chuẩn hóa lại interpreter/package path trước khi xem pytest là kiểm thử hợp lệ.
