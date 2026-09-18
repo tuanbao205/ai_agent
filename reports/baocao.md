@@ -1,8 +1,8 @@
 # Báo cáo điều hành dự án AgentOS Customer360
 
 - **Ngày cập nhật:** 18/09/2026
-- **Phiên bản báo cáo:** 0.3
-- **Trạng thái:** Có local FastAPI skeleton P0/P1; chưa có production
+- **Phiên bản báo cáo:** 0.4
+- **Trạng thái:** Có local FastAPI skeleton và audit layer P0/P1; chưa có production
 - **Tài liệu nguồn chính:** `De_bai_Xay_dung_He_thong_AI_Agent_Marketing_Sales_CSKH_v0.1.md`, `plans/`, `reports/AUDIT_DE_BAI_VS_KE_HOACH.md`
 
 ## 1. Hiện trạng hệ thống
@@ -12,10 +12,8 @@
 - Workspace có bộ hồ sơ thiết kế và local FastAPI vertical slice đầu tiên.
 - Đã tạo contract P0/P1 tại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md).
 - Đã tạo `pyproject.toml`, package `app/`, health check và fake ERP connector.
-- Chưa có database persistence, identity provider, audit store hoặc connector production.
+- Chưa có database persistence, identity provider, audit store bền vững hoặc connector production; audit hiện chỉ in-memory.
 - Chưa có doanh nghiệp pilot, website/app cụ thể, dữ liệu thật, credential hoặc KPI baseline.
-
-### 1.2. Kiến trúc đích đã thống nhất
 
 ### 1.2. Kiến trúc đích đã thống nhất
 
@@ -76,6 +74,7 @@ POST /p1/orders/lookup
   -> Kiểm tra tenant context
   -> Fake ERP lookup theo tenant + order
   -> Bắt buộc verified_customer_id khớp customer_id
+  -> Ghi audit run/evidence với trace_id
   -> Trả trạng thái đơn hoặc lỗi trung thực
 ```
 
@@ -102,8 +101,8 @@ Trong P1, Marketing và Sales phải tắt hoàn toàn. Không tạo giỏ hàng
 2. Chưa khóa doanh nghiệp pilot, hành trình đầu tiên và kết quả cần đo.
 3. Chưa có canonical data model cho Customer360, Conversation, Case, Evidence, Action và Approval.
 4. Chưa có API transport và connector thật với ERP/WMS, website hoặc kênh chat; contract nghiệp vụ P0 đã có bản local đầu tiên.
-5. Chưa có cơ chế runtime cho policy, authority, idempotency, retry và audit.
-6. Chưa có persistence và audit runtime; đã có smoke checks local cho vertical slice đầu tiên.
+5. Chưa có persistence, idempotency store, retry policy đầy đủ hoặc audit store bền vững.
+6. Audit runtime hiện là in-memory, phù hợp local nhưng mất dữ liệu khi process restart.
 7. Roadmap hiện chứa nhiều ý tưởng thương mại nâng cao, dễ làm phạm vi bị phình trước khi P1 hoạt động.
 8. Chưa có tiêu chí phân biệt rõ tính năng đã chạy local, đã chạy production-like và đã được doanh nghiệp nghiệm thu.
 
@@ -188,6 +187,7 @@ Nguyên tắc kiểm soát:
 - [x] Chốt stack local: Python + FastAPI + Pydantic.
 - [x] Tạo skeleton chạy được và health check.
 - [x] Tạo contract/schema nghiệp vụ P0/P1 đầu tiên tại `plans/platform/p0-contracts.md`.
+- [x] Ghi audit record cho request `DENY` và `SUCCESS` ở local.
 
 ### 7.2. Production
 
@@ -206,6 +206,8 @@ Nguyên tắc kiểm soát:
 - Đã tạo `pyproject.toml`, package `app/`, fake ERP connector và endpoint `/p1/orders/lookup`.
 - Smoke test local đạt cho health check, identity verification, lookup thành công và tenant boundary.
 - Đã sửa authority check bằng bảng rank tường minh, không phụ thuộc thứ tự enum.
+- Đã thêm `InMemoryAuditStore`, `run_id`, `trace_id`, `execution_status` và evidence cho order lookup.
+- Smoke test audit đạt cho nhánh chưa xác minh danh tính (`DENY`) và lookup thành công (`SUCCESS`).
 
 ### 8.2. Production
 
@@ -222,6 +224,8 @@ Nguyên tắc kiểm soát:
 6. Người có quyền nghiệm thu nghiệp vụ.
 
 Sau khi contract P0 đã được khóa, skeleton local đã chạy được bằng fake connector mà không cần dữ liệu production. Stack được chốt tạm thời cho P0/P1 là Python + FastAPI.
+
+Lát cắt audit hiện chỉ là local in-memory; chưa được xem là audit production vì chưa có lưu trữ bền vững, phân quyền truy cập log và retention policy.
 
 ## 10. Quy ước cập nhật báo cáo
 
@@ -241,4 +245,5 @@ Các mục hành động và kết quả sẽ chỉ được đánh dấu hoàn 
 - Interpreter terminal: Python 3.14.3.
 - FastAPI và httpx import được trong terminal.
 - Smoke test trực tiếp đã đạt.
+- Audit smoke test trực tiếp đã đạt cho trạng thái `DENY` và `SUCCESS`.
 - `pytest` được công cụ môi trường báo đã cài nhưng terminal hiện không import được; cần chuẩn hóa lại interpreter/package path trước khi xem pytest là kiểm thử hợp lệ.

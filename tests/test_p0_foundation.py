@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, audit_store
 
 client = TestClient(app)
 
@@ -27,7 +27,9 @@ def test_order_lookup_requires_identity_verification() -> None:
     response = client.post("/p1/orders/lookup", json=BASE_CONTEXT)
 
     assert response.status_code == 403
-    assert response.json()["detail"] == "Identity verification is required"
+    assert response.json()["detail"]["message"] == "Identity verification is required"
+    assert response.json()["detail"]["trace_id"] == "trace-001"
+    assert audit_store.find_by_trace("trace-001")[-1].execution_status == "denied"
 
 
 def test_order_lookup_succeeds_after_identity_verification() -> None:
@@ -37,6 +39,9 @@ def test_order_lookup_succeeds_after_identity_verification() -> None:
     )
 
     assert response.status_code == 200
+    assert response.json()["trace_id"] == "trace-001"
+    assert response.json()["run_id"].startswith("run-")
+    assert response.json()["evidence"]["source"] == "fake-erp"
     assert response.json()["source"] == "fake-erp"
     assert response.json()["status"] == "in_transit"
 
