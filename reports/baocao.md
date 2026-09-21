@@ -1,8 +1,8 @@
 # Báo cáo điều hành dự án AgentOS Customer360
 
 - **Ngày cập nhật:** 18/09/2026
-- **Phiên bản báo cáo:** 0.6
-- **Trạng thái:** Đang lập kế hoạch triển khai để trình Lead; không có code runtime trong workspace
+- **Phiên bản báo cáo:** 0.7
+- **Trạng thái:** Đã có Pilot Charter dự thảo; tiếp tục lập kế hoạch, không có code runtime
 - **Tài liệu nguồn chính:** `De_bai_Xay_dung_He_thong_AI_Agent_Marketing_Sales_CSKH_v0.1.md`, `plans/`, `reports/AUDIT_DE_BAI_VS_KE_HOACH.md`
 
 ## 1. Hiện trạng hệ thống
@@ -12,6 +12,7 @@
 - Workspace hiện có bộ hồ sơ SRS, kế hoạch nghiệp vụ, contract P0 và implementation plan dự thảo.
 - Đã tạo contract P0/P1 tại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md).
 - Đã tạo implementation plan trình Lead tại [plans/implementation-plan.md](../plans/implementation-plan.md).
+- Đã tạo Pilot Charter dự thảo tại [plans/pilot-charter.md](../plans/pilot-charter.md).
 - Code prototype FastAPI, test và `pyproject.toml` đã được gỡ theo quyết định chuyển sang giai đoạn lập kế hoạch.
 - Chưa có database persistence, identity provider, audit store, API server hoặc connector production.
 - Chưa có doanh nghiệp pilot, website/app cụ thể, dữ liệu thật, credential hoặc KPI baseline.
@@ -83,6 +84,20 @@ Khách gửi câu hỏi
 ```
 
 Trong P1, Marketing và Sales phải tắt hoàn toàn. Không tạo giỏ hàng, không chốt đơn, không tự giảm giá, không hoàn tiền.
+
+### 2.4. Luồng pilot được khuyến nghị
+
+```text
+Khách hỏi trạng thái đơn
+  -> Xác minh danh tính
+  -> Tra cứu đơn read-only
+  -> Trả lời có source/evidence
+  -> Tạo case nếu lỗi hoặc khách yêu cầu
+  -> Nhân viên tiếp quản
+  -> Ghi outcome và KPI
+```
+
+Đây là phương án A trong Pilot Charter, được khuyến nghị vì rủi ro thấp hơn Sales/Marketing nhưng vẫn kiểm chứng Customer360, identity, connector, audit và handoff.
 
 ## 3. Vấn đề gặp phải
 
@@ -184,6 +199,7 @@ Nguyên tắc kiểm soát:
 - [x] Tạo contract/schema nghiệp vụ P0/P1 đầu tiên tại `plans/platform/p0-contracts.md`.
 - [x] Tạm dừng code, chuyển trọng tâm sang tài liệu kế hoạch trình Lead.
 - [ ] Hoàn thiện Pilot Charter, scope baseline, ADR, test plan và risk register.
+- [x] Tạo Pilot Charter dự thảo với 4 phương án lựa chọn và khuyến nghị phương án A.
 
 ### 7.2. Production
 
@@ -201,6 +217,7 @@ Nguyên tắc kiểm soát:
 - Đã tạo file báo cáo trung tâm để cập nhật sau mỗi thay đổi: `reports/baocao.md`.
 - Đã tạo [plans/implementation-plan.md](../plans/implementation-plan.md) để trình Lead.
 - Đã giữ lại [plans/platform/p0-contracts.md](../plans/platform/p0-contracts.md) làm baseline thiết kế.
+- Đã tạo [plans/pilot-charter.md](../plans/pilot-charter.md), chưa được Lead phê duyệt.
 - Code prototype trước đó chỉ được dùng làm kiểm tra giả thuyết, không được tính là kết quả triển khai.
 
 ### 8.2. Production
@@ -235,6 +252,8 @@ Trình bày một kế hoạch có thể phê duyệt trước khi đầu tư th
 6. Nguồn dữ liệu, API, quyền truy cập và trách nhiệm bảo mật.
 7. Kế hoạch rollout local → production-like → pilot production.
 8. Tiêu chí nghiệm thu và quyết định mở P2.
+
+Khuyến nghị hiện tại: Lead chọn **A — Order Status + Human Handoff** làm pilot đầu tiên. Chưa được coi là quyết định chính thức cho đến khi có người duyệt.
 
 ### Sản phẩm đầu ra trước khi code tiếp
 
